@@ -44,7 +44,7 @@ Future obtainLock(path, {Duration tryInterval: const Duration(seconds: 1)}) {
   return completer.future;
 }
 
-Future runWithLock(path, Future callback(), {Duration tryInterval: const Duration(seconds: 1)}) {
+Future _runWithLock(path, Future callback(), tryInterval) {
   var value;
   return obtainLock(path, tryInterval: tryInterval).then((_) {
     var listeners = [];
@@ -67,5 +67,14 @@ Future runWithLock(path, Future callback(), {Duration tryInterval: const Duratio
       freeLock(path);
       return value;
     });
+  });
+}
+
+Future runWithLock(path, Future callback(), {Duration tryInterval: const Duration(seconds: 1)}) {
+  return runZoned(() => _runWithLock(path, callback, tryInterval), onError: (e, s) {
+    freeLock(path);
+    print(e);
+    print(s);
+    exit(1);
   });
 }

@@ -1,0 +1,12 @@
+name: lock
+version: 0.1.0
+author: Clean Team <clean@vacuumlabs.com>
+description: A sample application
+homepage: https://github.com/cleandart/dartlock
+environment:
+  sdk: '>=0.8.10+6 <2.0.0'
+documentation: https://github.com/cleandart/dartlock
+dependencies:
+  path: any
+dev_dependencies:
+  unittest: '>=0.10.0'

@@ -9,6 +9,6 @@ import 'dart:async';
 void main() {
   runWithLock("example.lock", () {
     return new Future.delayed(new Duration(seconds: 10), () => print("Done"));
-  }).then((_) => print("Exiting"));
+  }, maxTrials: 1).then((_) => print("Exiting"));
 
 }

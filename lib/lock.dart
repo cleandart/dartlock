@@ -6,7 +6,10 @@ library lock;
 
 import 'dart:io';
 import 'dart:async';
+import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
+
+Logger logger = new Logger('dartlock');
 
 class LockException implements Exception {
 
@@ -56,12 +59,14 @@ void freeLock(path) {
 
 Future obtainLock(path, {Duration tryInterval: const Duration(seconds: 1),
                          num maxTrials: -1}) {
+  logger.info('Trying to obtain lock.');
   var completer = new Completer();
 
   var trials = 0;
   tryCallback(Timer timer) {
     if (tryLock(path)) {
       timer.cancel();
+      logger.info('Lock was successfully obtained.');
       completer.complete();
     } else {
       trials++;
@@ -110,8 +115,8 @@ Future runWithLock(path, Future callback(),
   return runZoned(() => _runWithLock(path, callback, tryInterval, maxTrials),
                                      onError: (e, s) {
     freeLock(path);
-    print(e);
-    print(s);
+    logger.info('Error executing callback.', e, s);
+    throw e;
     exit(1);
   });
 }

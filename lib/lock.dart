@@ -59,7 +59,7 @@ void freeLock(path) {
 
 Future obtainLock(path, {Duration tryInterval: const Duration(seconds: 1),
                          num maxTrials: -1}) {
-  logger.info('Trying to obtain lock.');
+  logger.info('Trying to obtain lock at path $path.');
   var completer = new Completer();
 
   var trials = 0;

@@ -13,22 +13,16 @@ Logger logger = new Logger('dartlock');
 
 class LockException implements Exception {
 
-    /** Description of the cause of the timeout. */
-    final String message;
     /** The max count that was exceeded. */
     final num count;
     /** Path of lock. */
     final String path;
 
-    LockException(this.message, this.count, this.path);
+    LockException(this.count, this.path);
 
-    String toString() {
-      String str = "LockException: could not obtain lock at path $path after "
-                   "$count trials.";
-      if (message != null) str = "$str\n$message";
-      return str;
-    }
-
+    String toString() =>
+        "LockException: could not obtain lock at path $path after "
+        "$count trials.";
 }
 
 
@@ -73,7 +67,7 @@ Future obtainLock(path, {Duration tryInterval: const Duration(seconds: 1),
       if (trials == maxTrials) {
         timer.cancel();
         completer.completeError(
-            new LockException(null, trials, path));
+            new LockException(trials, path));
       }
     }
   }

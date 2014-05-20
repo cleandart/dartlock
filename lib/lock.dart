@@ -17,16 +17,16 @@ class LockException implements Exception {
     final String message;
     /** The max count that was exceeded. */
     final num count;
+    /** Path of lock. */
+    final String path;
 
-    LockException(this.message, [this.count]);
+    LockException(this.message, this.count, this.path);
 
     String toString() {
-      if (message != null) {
-        if (count != null) return "LockException after $count trials: $message";
-        return "LockException: $message";
-      }
-      if (count != null) return "LockException after $count trials";
-      return "LockException";
+      String str = "LockException: could not obtain lock at path $path after "
+                   "$count trials.";
+      if (message != null) str = "$str\n$message";
+      return str;
     }
 
 }
@@ -72,7 +72,8 @@ Future obtainLock(path, {Duration tryInterval: const Duration(seconds: 1),
       trials++;
       if (trials == maxTrials) {
         timer.cancel();
-        completer.completeError(new LockException("Could not obtain lock", trials));
+        completer.completeError(
+            new LockException(null, trials, path));
       }
     }
   }
@@ -115,8 +116,11 @@ Future runWithLock(path, Future callback(),
   return runZoned(() => _runWithLock(path, callback, tryInterval, maxTrials),
                                      onError: (e, s) {
     freeLock(path);
-    logger.info('Error executing callback.', e, s);
-    throw e;
+    if (e is LockException) {
+      logger.warning(e.toString());
+    } else {
+      logger.shout('Error executing callback.', e, s);
+    }
     exit(1);
   });
 }
